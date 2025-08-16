@@ -101,13 +101,14 @@ func getZapLevel(level string) zapcore.Level {
 func getEncoderConfig(development bool) zapcore.EncoderConfig {
 	var config zapcore.EncoderConfig
 
-	if development {
-		config = zap.NewDevelopmentEncoderConfig()
-		config.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	} else {
-		config = zap.NewProductionEncoderConfig()
-		config.EncodeLevel = zapcore.CapitalLevelEncoder
-	}
+	// 问题：如果开启后，输入到文件的日志错误等级会乱码
+	//if development {
+	//	config = zap.NewDevelopmentEncoderConfig()
+	//	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	//} else {
+	config = zap.NewProductionEncoderConfig()
+	config.EncodeLevel = zapcore.CapitalLevelEncoder
+	//}
 
 	// 自定义时间格式
 	config.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {

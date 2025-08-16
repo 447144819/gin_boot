@@ -23,7 +23,7 @@ redis:
 log:
   level: "info"              # debug, info, warn, error, fatal
   encoding: "console"           # json, console
-  development: true         # 是否为开发模式
+  development: false         # 是否为开发模式
   enable_console: true       # 是否输出到控制台
   enable_file: true          # 是否输出到文件
 
