@@ -16,12 +16,15 @@ func InitServer() *gin.Engine {
 	// 初始化日志
 	InitLogger()
 
+	// 初始化数据接
+	InitDB()
+
 	defer Logger.Sync() // 刷新缓冲区
 
 	server := gin.Default()
 
 	// 使用配置中间件
-	server.Use(middleware.CorsMiddleware(), middleware.RecoveryMiddleware())
+	server.Use(middleware.NewCorsMiddleware().Build(), middleware.RecoveryMiddleware())
 
 	// 设置Gin模式
 	if mode := config.GetServer().Mode; mode == "release" {
