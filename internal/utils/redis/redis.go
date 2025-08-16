@@ -2,59 +2,43 @@ package redis
 
 import (
 	"context"
-	"errors"
 	"gin_boot/internal/initializa"
-	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
-	"net/http"
 	"time"
 )
 
-// ExampleController 定义示例控制器
-type ExampleController struct{}
+// RedisService 提供 Redis 操作的封装方法
+type RedisService struct{}
 
-// NewExampleController 创建 ExampleController 实例
-func NewExampleController() *ExampleController {
-	return &ExampleController{}
+// NewRedisService 创建 RedisService 实例
+func NewRedisService() *RedisService {
+	return &RedisService{}
 }
 
-// Set 设置
-func (ec *ExampleController) Set(ctx *gin.Context, key string, value string, expire time.Duration) {
-	if key == "" || value == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Key 和 Value 参数必填"})
-		return
-	}
-
+// Set 设置缓存，默认单位：秒
+func (s *RedisService) Set(ctx context.Context, key string, value string, expiration int) error {
 	rdb := initializa.GetRedisClient()
-	ctxRedis := context.Background()
+	expirationTime := time.Duration(expiration) * time.Second
+	return rdb.Set(ctx, key, value, expirationTime).Err()
+}
 
-	err := rdb.Set(ctxRedis, key, value, expire).Err() // 设置键值对，过期时间为 10 分钟
+// Get 获取缓存
+func (s *RedisService) Get(ctx context.Context, key string) (string, error) {
+	rdb := initializa.GetRedisClient()
+	return rdb.Get(ctx, key).Result()
+}
+
+// Delete 删除指定的键
+func (s *RedisService) Delete(ctx context.Context, key string) error {
+	rdb := initializa.GetRedisClient()
+	return rdb.Del(ctx, key).Err()
+}
+
+// Exists 检查键是否存在
+func (s *RedisService) Exists(ctx context.Context, key string) (bool, error) {
+	rdb := initializa.GetRedisClient()
+	exists, err := rdb.Exists(ctx, key).Result()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "无法设置 Redis 键值对: " + err.Error()})
-		return
+		return false, err
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{"status": "成功设置键值对", "key": key, "value": value})
-}
-
-// Get 获取
-func (ec *ExampleController) Get(ctx *gin.Context, key string) {
-	if key == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Key 参数必填"})
-		return
-	}
-
-	rdb := initializa.GetRedisClient()
-	ctxRedis := context.Background()
-
-	val, err := rdb.Get(ctxRedis, key).Result()
-	if errors.Is(err, redis.Nil) {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "键不存在"})
-		return
-	} else if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "无法获取 Redis 键值: " + err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"key": key, "value": val})
+	return exists > 0, nil
 }
