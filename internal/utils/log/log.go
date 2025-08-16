@@ -2,23 +2,24 @@
 package log
 
 import (
-	"gin_boot/internal/initializa"
+	"gin_boot/internal/initializa/log"
 	"go.uber.org/zap"
 )
 
 func Info(msg string, fields ...zap.Field) {
-	initializa.Info(msg, fields...)
+	log.Info(msg, fields...)
 }
 
 func Error(msg string, fields ...zap.Field) {
-	initializa.Error(msg, fields...)
+	log.Error(msg, fields...)
 }
 func Debug(msg string, fields ...zap.Field) {
-	initializa.Debug("error", fields...)
+	log.Debug("error", fields...)
 }
 func Fatal(msg string, fields ...zap.Field) {
-	initializa.Fatal(msg, fields...)
+	log.Fatal(msg, fields...)
 }
+
 func Panic(msg string, fields ...zap.Field) {
-	initializa.Panic(msg, fields...)
+	log.Panic(msg, fields...)
 }

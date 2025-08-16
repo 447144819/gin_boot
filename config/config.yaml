@@ -19,8 +19,32 @@ redis:
   password: ""
   db: 0
 
+# 日志配置
 log:
-  debug: true
-  enable_file: true
-  enable_console: true
-  file_path: "./logs/app.log"
+  level: "info"              # debug, info, warn, error, fatal
+  encoding: "console"           # json, console
+  development: true         # 是否为开发模式
+  enable_console: true       # 是否输出到控制台
+  enable_file: true          # 是否输出到文件
+
+# 文件配置
+file:
+  dir: "logs"              # 日志目录
+  filename: "app"          # 文件名前缀
+  max_size: 100            # 单个文件最大MB
+  max_age: 30              # 保留天数
+  max_backups: 50          # 最大备份文件数
+  compress: true           # 是否压缩
+  local_time: true         # 是否使用本地时间
+  daily_rotate: false       # 日志是否保存一个问题
+  time_format: "2006-01-02" # 时间格式
+
+# Gin中间件配置
+gin:
+  enable: true             # 启用Gin日志中间件
+  skip_paths:              # 跳过记录的路径
+    - "/health"
+    - "/metrics"
+    - "/favicon.ico"
+  time_format: "2006-01-02 15:04:05"
+  custom_format: true      # 使用自定义格式

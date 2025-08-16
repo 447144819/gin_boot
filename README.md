@@ -2,8 +2,13 @@
 gin框架脚手架
 
 
+### 日志打印
+```
+log.Info("🚀 hello lzw" )
+log.Error("🚀 系统错误" )
+```
 
-### 常用返回
+### 响应返回
 ```
 response.Success(ctx)
 response.Success(ctx, "用户创建成功")

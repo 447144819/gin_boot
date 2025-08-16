@@ -37,13 +37,38 @@ type RedisConfig struct {
 
 // LogConfig 日志配置
 type LogConfig struct {
-	Debug         bool   `mapstructure:"debug"`
 	Level         string `mapstructure:"level"`
-	FilePath      string `mapstructure:"file_path"`
-	MaxSize       int    `mapstructure:"max_size"`
+	Encoding      string `mapstructure:"encoding"`
+	Development   bool   `mapstructure:"development"`
 	EnableFile    bool   `mapstructure:"enable_file"`
 	EnableConsole bool   `mapstructure:"enable_console"`
 }
+
+// FileConfig 文件日志配置
+type FileConfig struct {
+	// 基础文件配置
+	Dir      string `mapstructure:"dir"`      // 日志目录
+	Filename string `mapstructure:"filename"` // 日志文件名（不含扩展名）
+
+	// 轮转配置
+	MaxSize    int  `mapstructure:"max_size"`    // 单个文件最大MB
+	MaxAge     int  `mapstructure:"max_age"`     // 保留天数
+	MaxBackups int  `mapstructure:"max_backups"` // 最大备份文件数
+	Compress   bool `mapstructure:"compress"`    // 是否压缩
+	LocalTime  bool `mapstructure:"local_time"`  // 是否使用本地时间
+
+	// 按天分割配置
+	DailyRotate bool   `mapstructure:"daily_rotate"` // 启用按天轮转
+	TimeFormat  string `mapstructure:"time_format"`  // 时间格式
+}
+
+//// GinLogConfig Gin日志中间件配置
+//type GinLogConfig struct {
+//	Enable       bool     `yaml:"enable"`        // 是否启用Gin日志中间件
+//	SkipPaths    []string `yaml:"skip_paths"`    // 跳过记录的路径
+//	TimeFormat   string   `yaml:"time_format"`   // 时间格式
+//	CustomFormat bool     `yaml:"custom_format"` // 是否使用自定义格式
+//}
 
 // Config 全局配置结构
 type Config struct {
@@ -51,6 +76,8 @@ type Config struct {
 	Database DatabaseConfig `mapstructure:"database"`
 	Redis    RedisConfig    `mapstructure:"redis"`
 	Log      LogConfig      `mapstructure:"log"`
+	File     FileConfig     `yaml:"file"` // 文件配置
+	//Gin      GinLogConfig   `yaml:"gin"`  // Gin中间件配置
 }
 
 // ConfigManager 配置管理器
@@ -161,6 +188,13 @@ func (cm *ConfigManager) GetLogConfig() LogConfig {
 	return cm.config.Log
 }
 
+// GetFileConfig 获取文件配置
+func (cm *ConfigManager) GetFileConfig() FileConfig {
+	cm.mutex.RLock()
+	defer cm.mutex.RUnlock()
+	return cm.config.File
+}
+
 // GetString 获取字符串配置值
 func (cm *ConfigManager) GetString(key string) string {
 	return cm.viper.GetString(key)
@@ -213,4 +247,9 @@ func GetRedis() RedisConfig {
 // GetLog 获取日志配置
 func GetLog() LogConfig {
 	return globalManager.GetLogConfig()
+}
+
+// GetLog 获取日志配置
+func GetFile() FileConfig {
+	return globalManager.GetFileConfig()
 }
