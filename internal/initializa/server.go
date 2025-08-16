@@ -3,10 +3,10 @@ package initializa
 import (
 	"fmt"
 	"gin_boot/config"
-	"gin_boot/internal/controller/tests"
 	"gin_boot/internal/initializa/log"
 	"gin_boot/internal/initializa/validator"
 	"gin_boot/internal/middleware"
+	"gin_boot/internal/router"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,22 +45,8 @@ func InitServer() *gin.Engine {
 		gin.SetMode(gin.DebugMode)
 	}
 
-	// 测试专用
-	test := server.Group("/api/v1/test/")
-	{
-		test.POST("addUser", tests.NewExampleController().CreateUser)
-		test.Use(middleware.JWTAuthMiddleware())
-		{
-			test.GET("list", func(c *gin.Context) {
-				userID, _ := c.Get("userID")
-				username, _ := c.Get("username")
-				c.JSON(200, gin.H{
-					"user":     userID,
-					"username": username,
-				})
-			})
-		}
-	}
+	// 注册路由
+	router.InitRouter(server)
 
 	return server
 }
