@@ -19,6 +19,9 @@ func InitServer() *gin.Engine {
 	// 初始化数据接
 	InitDB()
 
+	// 初始化redis
+	InitRedis()
+
 	defer Logger.Sync() // 刷新缓冲区
 
 	server := gin.Default()
