@@ -35,53 +35,43 @@ func PageSuccess(c *gin.Context, list interface{}, total int64, page int, pageSi
 		Page:     page,
 		PageSize: pageSize,
 	}
-	SuccessWithData(c, Response{Data: pageResult})
+	SuccessData(c, pageResult)
 }
 
 // 成功返回
-func Success(c *gin.Context, msg ...string) {
+func Success(ctx *gin.Context, msg ...string) {
 	message := "操作成功"
 	if len(msg) == 1 {
 		message = msg[0]
 	}
-	SuccessWithData(c, Response{
-		Code:    SuccessCode,
-		Message: message,
-		Data:    nil,
-	})
+	Custom(ctx, SuccessCode, message, nil)
 }
 
 // 成功返回
-func SuccessWithData(c *gin.Context, res Response) {
-	if res.Message == "" {
-		res.Message = "操作成功"
+func SuccessData(ctx *gin.Context, data interface{}, msg ...string) {
+	message := "操作成功"
+	if len(msg) == 1 {
+		message = msg[0]
 	}
-	if res.Code == 0 {
-		res.Code = SuccessCode
-	}
-	c.JSON(200, Response{
-		Code:    res.Code,
-		Message: res.Message,
-		Data:    res.Data,
-	})
+	Custom(ctx, SuccessCode, message, data)
 }
 
 // 失败返回
-func Error(c *gin.Context, msg ...string) {
+func Error(ctx *gin.Context, msg ...string) {
 	message := "操作失败"
 	if len(msg) == 1 {
 		message = msg[0]
 	}
-	ErrorWithCode(c, ErrorCode, message)
+	Custom(ctx, ErrorCode, message, nil)
 }
 
 // 失败返回
-func ErrorWithCode(c *gin.Context, code int, message string) {
-	c.JSON(200, Response{
-		Code:    code,
-		Message: message,
-		Data:    nil,
-	})
+func ErrorWithCode(ctx *gin.Context, code int, msg ...string) {
+	message := "操作失败"
+	if len(msg) == 1 {
+		message = msg[0]
+	}
+	Custom(ctx, code, message, nil)
 }
 
 // 自定义返回
