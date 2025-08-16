@@ -33,7 +33,10 @@ func InitServer() *gin.Engine {
 	server := gin.Default()
 
 	// 使用配置中间件
-	server.Use(middleware.NewCorsMiddleware().Build(), middleware.RecoveryMiddleware())
+	server.Use(
+		middleware.NewCorsMiddleware().Build(),
+		middleware.RecoveryMiddleware(),
+	)
 
 	// 设置Gin模式
 	if mode := config.GetServer().Mode; mode == "release" {
@@ -46,6 +49,17 @@ func InitServer() *gin.Engine {
 	test := server.Group("/api/v1/test/")
 	{
 		test.POST("addUser", tests.NewExampleController().CreateUser)
+		test.Use(middleware.JWTAuthMiddleware())
+		{
+			test.GET("list", func(c *gin.Context) {
+				userID, _ := c.Get("userID")
+				username, _ := c.Get("username")
+				c.JSON(200, gin.H{
+					"user":     userID,
+					"username": username,
+				})
+			})
+		}
 	}
 
 	return server
