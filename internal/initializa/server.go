@@ -3,6 +3,8 @@ package initializa
 import (
 	"fmt"
 	"gin_boot/config"
+	"gin_boot/internal/controller/tests"
+	"gin_boot/internal/initializa/validator"
 	"gin_boot/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +24,9 @@ func InitServer() *gin.Engine {
 	// 初始化redis
 	InitRedis()
 
+	// 初始化 Validator（包含中文翻译和自定义规则）
+	validator.Init()
+
 	defer Logger.Sync() // 刷新缓冲区
 
 	server := gin.Default()
@@ -34,6 +39,12 @@ func InitServer() *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		gin.SetMode(gin.DebugMode)
+	}
+
+	// 测试专用
+	test := server.Group("/api/v1/test/")
+	{
+		test.POST("addUser", tests.NewExampleController().CreateUser)
 	}
 
 	return server

@@ -1,7 +1,7 @@
 server:
   name: "gin-viper-app"
   host: "127.0.0.1"
-  port: 8089
+  port: 8088
   mode: "debug"  # debug, release, test
 
 database:
