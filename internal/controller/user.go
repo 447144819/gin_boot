@@ -36,7 +36,19 @@ func (u *UserController) Create(ctx *gin.Context) {
 }
 
 func (u *UserController) Edit(ctx *gin.Context) {
+	var req dto.UserEditDTO
+	// 使用封装的验证器
+	if errors := validator.GinBind(ctx, &req); errors != nil {
+		response.Error(ctx, errors.Error())
+		return
+	}
 
+	err := u.svc.Edit(ctx, req)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	response.Success(ctx, "修改成功")
 }
 
 func (u *UserController) Delete(ctx *gin.Context) {

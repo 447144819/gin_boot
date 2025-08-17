@@ -1,11 +1,11 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"gin_boot/internal/dao"
 	"gin_boot/internal/dto"
 	"gin_boot/internal/utils/hash"
-	"github.com/gin-gonic/gin"
 )
 
 type UserService struct {
@@ -18,7 +18,7 @@ func NewUserService(dao *dao.UserDao) *UserService {
 	}
 }
 
-func (s UserService) Create(ctx *gin.Context, req dto.UserCreateDTO) error {
+func (s UserService) Create(ctx context.Context, req dto.UserCreateDTO) error {
 	// 判断用户是否存在
 	user, err := s.dao.FindByUsername(ctx, req.Username)
 	if user.Id > 0 {
@@ -33,7 +33,7 @@ func (s UserService) Create(ctx *gin.Context, req dto.UserCreateDTO) error {
 	return err
 }
 
-func (s *UserService) Delete(ctx *gin.Context, id int64) error {
+func (s *UserService) Delete(ctx context.Context, id int64) error {
 	user, err := s.dao.FindById(ctx, id)
 	if user.Id < 1 {
 		return errors.New("用户不存在")
@@ -43,4 +43,19 @@ func (s *UserService) Delete(ctx *gin.Context, id int64) error {
 	}
 
 	return s.dao.Delete(ctx, id)
+}
+
+func (s UserService) Edit(ctx context.Context, req dto.UserEditDTO) error {
+	user, err := s.dao.FindById(ctx, req.Id)
+	if user.Id < 1 {
+		return errors.New("用户不存在")
+	}
+	if err != nil {
+		return err
+	}
+	user.Email = req.Email
+	user.Phone = req.Phone
+	user.Nickname = req.Nickname
+	user.RoleId = req.RoleId
+	return s.dao.Update(ctx, user)
 }

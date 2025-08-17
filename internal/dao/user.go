@@ -1,9 +1,9 @@
 package dao
 
 import (
+	"context"
 	"gin_boot/internal/dto"
 	"gin_boot/internal/model"
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -19,13 +19,13 @@ func NewUserDao(db *gorm.DB) *UserDao {
 	}
 }
 
-func (d *UserDao) FindByUsername(ctx *gin.Context, username string) (model.User, error) {
+func (d *UserDao) FindByUsername(ctx context.Context, username string) (model.User, error) {
 	var user model.User
 	err := d.db.WithContext(ctx).Where("username = ?", username).Find(&user).Error
 	return user, err
 }
 
-func (d *UserDao) Create(ctx *gin.Context, req dto.UserCreateDTO) error {
+func (d *UserDao) Create(ctx context.Context, req dto.UserCreateDTO) error {
 	res := d.db.WithContext(ctx).Create(&model.User{
 		Username: req.Username,
 		Password: req.Password,
@@ -37,13 +37,17 @@ func (d *UserDao) Create(ctx *gin.Context, req dto.UserCreateDTO) error {
 	return res.Error
 }
 
-func (d *UserDao) FindById(ctx *gin.Context, id int64) (model.User, error) {
+func (d *UserDao) FindById(ctx context.Context, id int64) (model.User, error) {
 	var user model.User
 	res := d.db.WithContext(ctx).Where("id=?", id).First(&user)
 	return user, res.Error
 }
 
-func (d *UserDao) Delete(ctx *gin.Context, id int64) error {
+func (d *UserDao) Delete(ctx context.Context, id int64) error {
 	var user model.User
 	return d.db.WithContext(ctx).Delete(&user, id).Error
+}
+
+func (d *UserDao) Update(ctx context.Context, user model.User) error {
+	return d.db.WithContext(ctx).Updates(&user).Error
 }
