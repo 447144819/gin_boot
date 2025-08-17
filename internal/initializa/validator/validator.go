@@ -105,6 +105,7 @@ func Validate(obj interface{}) ValidationErrors {
 				Tag:     err.Tag(),
 				Message: err.Translate(trans),
 			})
+			break
 		}
 		return errors
 	}
@@ -131,6 +132,7 @@ func GinBind(c *gin.Context, obj interface{}) ValidationErrors {
 					Tag:     err.Tag(),
 					Message: err.Translate(trans),
 				})
+				break
 			}
 			return errors
 		}

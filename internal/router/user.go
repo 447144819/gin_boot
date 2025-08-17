@@ -14,7 +14,13 @@ func InitUserRouter(router *gin.RouterGroup, db *gorm.DB) {
 	uc := controller.NewUserController(usvc)
 	user := router.Group("/users")
 	{
-		user.GET("/login", uc.Login)
+		user.POST("/add", uc.Create)
+		user.PUT("/edit", uc.Edit)
+		user.DELETE("/delete/:id", uc.Delete)
+		user.GET("/:id", uc.Detail)
+		user.GET("/list", uc.List)
+		user.POST("/login", uc.Login)
+		user.GET("/logout", uc.Logout)
 	}
 
 }
