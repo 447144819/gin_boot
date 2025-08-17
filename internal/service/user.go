@@ -7,6 +7,7 @@ import (
 	"gin_boot/internal/dto"
 	"gin_boot/internal/model"
 	"gin_boot/internal/utils/hash"
+	"gin_boot/internal/vo"
 )
 
 type UserService struct {
@@ -19,6 +20,16 @@ func NewUserService(dao *dao.UserDao) *UserService {
 	}
 }
 
+func (s UserService) ModelToVo(user model.User) vo.UserInfoVO {
+	return vo.UserInfoVO{
+		Username: user.Username,
+		Nickname: user.Nickname,
+		Phone:    user.Phone,
+		Email:    user.Email,
+		RoleId:   user.RoleId,
+		Ctime:    user.Ctime,
+	}
+}
 func (s UserService) Create(ctx context.Context, req dto.UserCreateDTO) error {
 	// 判断用户是否存在
 	user, err := s.dao.FindByUsername(ctx, req.Username)
@@ -61,13 +72,13 @@ func (s UserService) Edit(ctx context.Context, req dto.UserEditDTO) error {
 	return s.dao.Update(ctx, user)
 }
 
-func (s *UserService) Detial(ctx context.Context, id int64) (model.User, error) {
+func (s *UserService) Detial(ctx context.Context, id int64) (vo.UserInfoVO, error) {
 	user, err := s.dao.FindById(ctx, id)
 	if user.Id < 1 {
-		return model.User{}, errors.New("用户不存在")
+		return vo.UserInfoVO{}, errors.New("用户不存在")
 	}
 	if err != nil {
-		return model.User{}, err
+		return vo.UserInfoVO{}, err
 	}
-	return user, nil
+	return s.ModelToVo(user), nil
 }
