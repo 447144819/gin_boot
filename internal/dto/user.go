@@ -16,3 +16,11 @@ type UserEditDTO struct {
 	Phone    string `json:"phone"`
 	Email    string `json:"email"`
 }
+
+type UserListDTO struct {
+	Pagination
+	Username string `form:"username"`
+	Phone    string `form:"keyword"`
+	Email    string `form:"keyword"`
+	Nickname string `form:"keyword"`
+}

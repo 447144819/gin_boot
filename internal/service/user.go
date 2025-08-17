@@ -82,3 +82,19 @@ func (s *UserService) Detial(ctx context.Context, id int64) (vo.UserInfoVO, erro
 	}
 	return s.ModelToVo(user), nil
 }
+
+func (s *UserService) List(ctx context.Context, req *dto.UserListDTO) (vo.UserListVo, error) {
+	var res vo.UserListVo
+	users, count, err := s.dao.List(ctx, req)
+	if err != nil {
+		return res, err
+	}
+
+	var userInfo []vo.UserInfoVO
+	for _, user := range users {
+		userInfo = append(userInfo, s.ModelToVo(user))
+	}
+	res.Total = count
+	res.Data = userInfo
+	return res, nil
+}

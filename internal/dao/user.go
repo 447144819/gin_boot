@@ -4,6 +4,7 @@ import (
 	"context"
 	"gin_boot/internal/dto"
 	"gin_boot/internal/model"
+	"gin_boot/internal/utils/page"
 	"gorm.io/gorm"
 )
 
@@ -50,4 +51,20 @@ func (d *UserDao) Delete(ctx context.Context, id int64) error {
 
 func (d *UserDao) Update(ctx context.Context, user model.User) error {
 	return d.db.WithContext(ctx).Updates(&user).Error
+}
+
+func (d *UserDao) List(ctx context.Context, req *dto.UserListDTO) ([]model.User, int64, error) {
+	var total int64
+	var users []model.User
+	// 1. 构造基础查询（带上下文和模型）
+	db := d.db.WithContext(ctx).Model(&model.User{})
+
+	// 2. 添加筛选条件
+	if req.Username != "" {
+		db.Where("username = ?", "%"+req.Username+"%")
+	}
+
+	// 3. 分页查询
+	err := db.Count(&total).Scopes(page.Paginate(req.PageNum, req.PageSize)).Find(&users).Error
+	return users, total, err
 }

@@ -78,7 +78,18 @@ func (u *UserController) Detail(ctx *gin.Context) {
 }
 
 func (u *UserController) List(ctx *gin.Context) {
+	var req dto.UserListDTO
+	// 使用封装的验证器
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
 
+	data, err := u.svc.List(ctx, &req)
+	if err != nil {
+		response.Error(ctx, err.Error())
+	}
+	response.SuccessData(ctx, data)
 }
 
 func (u *UserController) Login(ctx *gin.Context) {
