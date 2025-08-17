@@ -34,13 +34,13 @@ func (s UserService) Create(ctx *gin.Context, req dto.UserCreateDTO) error {
 }
 
 func (s *UserService) Delete(ctx *gin.Context, id int64) error {
-	//user, err := s.dao.FindById(ctx, id)
-	//if user.Id < 1 {
-	//	return errors.New("用户不存在")
-	//}
-	//if err != nil {
-	//	return err
-	//}
+	user, err := s.dao.FindById(ctx, id)
+	if user.Id < 1 {
+		return errors.New("用户不存在")
+	}
+	if err != nil {
+		return err
+	}
 
 	return s.dao.Delete(ctx, id)
 }

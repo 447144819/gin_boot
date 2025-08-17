@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"errors"
 	"gin_boot/internal/dto"
 	"gin_boot/internal/model"
 	"github.com/gin-gonic/gin"
@@ -45,12 +44,6 @@ func (d *UserDao) FindById(ctx *gin.Context, id int64) (model.User, error) {
 }
 
 func (d *UserDao) Delete(ctx *gin.Context, id int64) error {
-	user, err := d.FindById(ctx, id)
-	if user.Id < 1 {
-		return errors.New("用户不存在")
-	}
-	if err != nil {
-		return err
-	}
+	var user model.User
 	return d.db.WithContext(ctx).Delete(&user, id).Error
 }
