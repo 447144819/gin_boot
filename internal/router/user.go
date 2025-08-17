@@ -1,17 +1,20 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	"gin_boot/internal/controller"
+	"gin_boot/internal/dao"
+	"gin_boot/internal/service"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
 
-func InitUserRouter(router *gin.RouterGroup) {
-	//userHandler := web.NewUserHandler()
+func InitUserRouter(router *gin.RouterGroup, db *gorm.DB) {
+	udao := dao.NewUserDao(db)
+	usvc := service.NewUserService(udao)
+	uc := controller.NewUserController(usvc)
 	user := router.Group("/users")
 	{
-		user.GET("/login", func(ctx *gin.Context) {
-			ctx.JSON(200, gin.H{
-				"code": 200,
-				"msg":  "success",
-			})
-		})
+		user.GET("/login", uc.Login)
 	}
 
 }

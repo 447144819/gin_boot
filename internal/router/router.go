@@ -1,8 +1,11 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
 
-func InitRouter(server *gin.Engine) {
+func InitRouter(server *gin.Engine, db *gorm.DB) {
 	baseRouter := server.Group("/api/v1")
-	InitUserRouter(baseRouter)
+	InitUserRouter(baseRouter, db)
 }

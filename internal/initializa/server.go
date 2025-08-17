@@ -20,7 +20,7 @@ func InitServer() *gin.Engine {
 	log.InitLogger()
 
 	// 初始化数据接
-	InitDB()
+	db := InitDB()
 
 	// 初始化redis
 	InitRedis()
@@ -46,7 +46,7 @@ func InitServer() *gin.Engine {
 	}
 
 	// 注册路由
-	router.InitRouter(server)
+	router.InitRouter(server, db)
 
 	return server
 }

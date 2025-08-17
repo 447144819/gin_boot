@@ -12,6 +12,7 @@ database:
   password: "root"
   database: "admin-api"
   charset: "utf8mb4"
+  prefix: "lzw_"
 
 redis:
   host: "localhost"
@@ -22,7 +23,7 @@ redis:
 # 日志配置
 log:
   level: "info"              # debug, info, warn, error, fatal
-  encoding: "console"           # json, console
+  encoding: "console"        # json, console
   development: false         # 是否为开发模式
   enable_console: true       # 是否输出到控制台
   enable_file: true          # 是否输出到文件
@@ -39,12 +40,3 @@ file:
   daily_rotate: false       # 日志是否保存一个问题
   time_format: "2006-01-02" # 时间格式
 
-# Gin中间件配置
-gin:
-  enable: true             # 启用Gin日志中间件
-  skip_paths:              # 跳过记录的路径
-    - "/health"
-    - "/metrics"
-    - "/favicon.ico"
-  time_format: "2006-01-02 15:04:05"
-  custom_format: true      # 使用自定义格式
