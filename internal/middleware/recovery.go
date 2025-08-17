@@ -10,7 +10,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				response.ErrorWithCode(c, response.ServerErrorCode, "服务器错误")
+				response.ErrorWithCode(c, response.ServerErrorCode, "服务器错误"+err.(string))
 				c.Abort()
 			}
 		}()
