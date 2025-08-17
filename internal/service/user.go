@@ -5,6 +5,7 @@ import (
 	"errors"
 	"gin_boot/internal/dao"
 	"gin_boot/internal/dto"
+	"gin_boot/internal/model"
 	"gin_boot/internal/utils/hash"
 )
 
@@ -58,4 +59,15 @@ func (s UserService) Edit(ctx context.Context, req dto.UserEditDTO) error {
 	user.Nickname = req.Nickname
 	user.RoleId = req.RoleId
 	return s.dao.Update(ctx, user)
+}
+
+func (s *UserService) Detial(ctx context.Context, id int64) (model.User, error) {
+	user, err := s.dao.FindById(ctx, id)
+	if user.Id < 1 {
+		return model.User{}, errors.New("用户不存在")
+	}
+	if err != nil {
+		return model.User{}, err
+	}
+	return user, nil
 }

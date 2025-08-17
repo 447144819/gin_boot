@@ -65,16 +65,26 @@ func (u *UserController) Delete(ctx *gin.Context) {
 }
 
 func (u *UserController) Detail(ctx *gin.Context) {
-
+	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if id < 1 {
+		response.Error(ctx, "参数错误")
+	}
+	user, err := u.svc.Detial(ctx, id)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	response.SuccessData(ctx, user)
 }
 
 func (u *UserController) List(ctx *gin.Context) {
 
 }
+
 func (u *UserController) Login(ctx *gin.Context) {
 	response.Success(ctx, "登录功能")
 }
 
 func (u *UserController) Logout(ctx *gin.Context) {
-
+	response.Success(ctx, "退出")
 }
