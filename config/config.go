@@ -6,8 +6,7 @@ type Config struct {
 	Database DatabaseConfig `mapstructure:"database"`
 	Redis    RedisConfig    `mapstructure:"redis"`
 	Log      LogConfig      `mapstructure:"log"`
-	File     FileConfig     `yaml:"file"` // 文件配置
-	//Gin      GinLogConfig   `yaml:"gin"`  // Gin中间件配置
+	File     FileConfig     `mapstructure:"file"` // 文件配置
 }
 
 // 全局便捷函数

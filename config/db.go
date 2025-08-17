@@ -7,7 +7,7 @@ type DatabaseConfig struct {
 	Port     int    `mapstructure:"port"`
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
-	Database string `mapstructure:"database"`
+	Dbname   string `mapstructure:"dbname"`
 	Charset  string `mapstructure:"charset"`
 	Prefix   string `mapstructure:"prefix"`
 }

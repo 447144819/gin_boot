@@ -19,7 +19,7 @@ func InitDB() *gorm.DB {
 		dbConfig.Password,
 		dbConfig.Host,
 		dbConfig.Port,
-		dbConfig.Database,
+		dbConfig.Dbname,
 		dbConfig.Charset,
 	)
 

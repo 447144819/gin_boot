@@ -10,7 +10,7 @@ database:
   port: 3306
   username: "root"
   password: "root"
-  database: "admin-api"
+  dbname: "admin-api"
   charset: "utf8mb4"
   prefix: "lzw_"
 
