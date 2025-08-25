@@ -19,4 +19,11 @@ response.Error(ctx, "用户创建失败")
 response.ErrorWithCode(ctx, 201)
 response.ErrorWithCode(ctx, 203, "用户创建失败")
 ```
-    
+
+### // 注册路由
+在控制器中实现RegisterRoutes方法
+```angular2html
+func (c *Captcha) RegisterRoutes(server *common.RouteContext) {
+    server.APIV1.GET("/captcha", c.GetCaptcha)
+}
+```
