@@ -1,4 +1,4 @@
-package log
+package logs
 
 import (
 	"fmt"
@@ -12,16 +12,15 @@ import (
 	"time"
 )
 
-// DailyRotateWriter 按天轮转的写入器
-type DailyRotateWriter struct {
-	dir        string
-	filename   string
-	maxAge     int
-	maxBackups int
-	compress   bool
-	localTime  bool
-	timeFormat string
-
+// dailyRotateWriter 按天轮转的写入器
+type dailyRotateWriter struct {
+	dir         string
+	filename    string
+	maxAge      int
+	maxBackups  int
+	compress    bool
+	localTime   bool
+	timeFormat  string
 	currentDate string
 	currentFile *os.File
 }
@@ -33,7 +32,7 @@ func NewDailyRotateWriter(cfg config.FileConfig) io.WriteCloser {
 		panic(fmt.Sprintf("创建日志目录失败: %v", err))
 	}
 
-	writer := &DailyRotateWriter{
+	writer := &dailyRotateWriter{
 		dir:        cfg.Dir,
 		filename:   cfg.Filename,
 		maxAge:     cfg.MaxAge,
@@ -47,7 +46,7 @@ func NewDailyRotateWriter(cfg config.FileConfig) io.WriteCloser {
 }
 
 // Write 写入日志
-func (w *DailyRotateWriter) Write(p []byte) (n int, err error) {
+func (w *dailyRotateWriter) Write(p []byte) (n int, err error) {
 	// 获取当前日期
 	var now time.Time
 	if w.localTime {
@@ -74,7 +73,7 @@ func (w *DailyRotateWriter) Write(p []byte) (n int, err error) {
 }
 
 // Close 关闭写入器
-func (w *DailyRotateWriter) Close() error {
+func (w *dailyRotateWriter) Close() error {
 	if w.currentFile != nil {
 		return w.currentFile.Close()
 	}
@@ -82,7 +81,7 @@ func (w *DailyRotateWriter) Close() error {
 }
 
 // rotate 执行日志轮转
-func (w *DailyRotateWriter) rotate(newDate string) {
+func (w *dailyRotateWriter) rotate(newDate string) {
 	// 关闭当前文件
 	if w.currentFile != nil {
 		w.currentFile.Close()
@@ -91,12 +90,11 @@ func (w *DailyRotateWriter) rotate(newDate string) {
 
 	// 清理过期文件
 	w.cleanup()
-
 	w.currentDate = newDate
 }
 
 // openFile 打开日志文件
-func (w *DailyRotateWriter) openFile(date string) error {
+func (w *dailyRotateWriter) openFile(date string) error {
 	filename := fmt.Sprintf("%s_%s.log", w.filename, date)
 	filepath := filepath.Join(w.dir, filename)
 
@@ -111,7 +109,7 @@ func (w *DailyRotateWriter) openFile(date string) error {
 }
 
 // cleanup 清理过期和超量的日志文件
-func (w *DailyRotateWriter) cleanup() {
+func (w *dailyRotateWriter) cleanup() {
 	files, err := w.getLogFiles()
 	if err != nil {
 		return
@@ -154,7 +152,7 @@ func (s logFileSlice) Less(i, j int) bool { return s[i].ModTime.Before(s[j].ModT
 func (s logFileSlice) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 // getLogFiles 获取日志文件列表
-func (w *DailyRotateWriter) getLogFiles() ([]logFile, error) {
+func (w *dailyRotateWriter) getLogFiles() ([]logFile, error) {
 	entries, err := os.ReadDir(w.dir)
 	if err != nil {
 		return nil, err
@@ -187,7 +185,7 @@ func (w *DailyRotateWriter) getLogFiles() ([]logFile, error) {
 }
 
 // compressOldFiles 压缩旧文件
-func (w *DailyRotateWriter) compressOldFiles() {
+func (w *dailyRotateWriter) compressOldFiles() {
 	// 这里可以实现压缩逻辑
 	// 为了简单起见，这里不实现具体的压缩功能
 	// 可以使用 gzip 包来实现

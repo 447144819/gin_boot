@@ -7,8 +7,26 @@ import (
 	"strings"
 )
 
-func JWTAuthMiddleware() gin.HandlerFunc {
+// 白名单
+var paths = []string{
+	"/api/v1/captcha",
+	"/api/v1/users/login",
+}
+
+type JWTMiddlewareBuilder struct{}
+
+func NewJWTAuthMiddleware() *JWTMiddlewareBuilder {
+	return &JWTMiddlewareBuilder{}
+}
+func (l *JWTMiddlewareBuilder) Build() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// 白名单
+		for _, path := range paths {
+			if path == c.Request.URL.Path {
+				return
+			}
+		}
+
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "未提供认证token"})
@@ -23,9 +41,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := parts[1]
-
 		claims, err := jwts.NewJWTHandler().ParseToken(tokenString)
-
 		if err != nil || claims.UserID == 0 {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "无效的Token", "details": err.Error()})
 			return

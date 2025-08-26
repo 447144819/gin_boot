@@ -1,15 +1,22 @@
 package response
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"gin_boot/internal/utils/logs"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
 
 const (
-	SuccessCode      = 200 // 成功
-	ErrorCode        = 202 // 失败
-	BadRequestCode   = 400 // 请求错误
-	UnauthorizedCode = 401 // 未授权
-	ForbiddenCode    = 403 // 禁止访问
-	NotFoundCode     = 404 // 资源不存在
-	ServerErrorCode  = 500 // 服务器错误
+	ParamsError   = "参数错误"
+	DoSuccess     = "操作成功"
+	DoError       = "操作失败"
+	AddSuccess    = "添加成功"
+	AddError      = "添加失败"
+	EditSuccess   = "修改成功"
+	EditError     = "修改失败"
+	DeleteSuccess = "删除成功"
+	DeleteError   = "删除失败"
 )
 
 // 统一返回结构
@@ -21,56 +28,60 @@ type Response struct {
 
 // 分页数据
 type PageResult struct {
-	List     interface{} `json:"list"`
-	Total    int64       `json:"total"`
-	Page     int         `json:"page"`
-	PageSize int         `json:"pageSize"`
+	List  interface{} `json:"list"`
+	Total int64       `json:"total"`
+	Page  int         `json:"page"`
+	Limit int         `json:"limit"`
 }
 
 // 分页返回
-func PageSuccess(c *gin.Context, list interface{}, total int64, page int, pageSize int) {
+func PageSuccess(c *gin.Context, list interface{}, total int64, page int, limit int) {
 	pageResult := PageResult{
-		List:     list,
-		Total:    total,
-		Page:     page,
-		PageSize: pageSize,
+		List:  list,
+		Total: total,
+		Page:  page,
+		Limit: limit,
 	}
 	SuccessData(c, pageResult)
 }
 
 // 成功返回
 func Success(ctx *gin.Context, msg ...string) {
-	message := "操作成功"
+	message := DoSuccess
 	if len(msg) == 1 {
 		message = msg[0]
 	}
-	Custom(ctx, SuccessCode, message, nil)
+	Custom(ctx, http.StatusOK, message, nil)
 }
 
 // 成功返回
 func SuccessData(ctx *gin.Context, data interface{}, msg ...string) {
-	message := "操作成功"
+	message := DoSuccess
 	if len(msg) == 1 {
 		message = msg[0]
 	}
-	Custom(ctx, SuccessCode, message, data)
+	Custom(ctx, http.StatusOK, message, data)
 }
 
 // 失败返回
-func Error(ctx *gin.Context, msg ...string) {
-	message := "操作失败"
-	if len(msg) == 1 {
+func Error(ctx *gin.Context, err error, msg ...string) {
+	message := DoError
+	if len(msg) > 0 {
 		message = msg[0]
 	}
-	Custom(ctx, ErrorCode, message, nil)
+	// 记录错误日志
+	logs.Info(fmt.Sprintf("%v:%v", message, err.Error()))
+	Custom(ctx, http.StatusCreated, message, nil)
 }
 
 // 失败返回
-func ErrorWithCode(ctx *gin.Context, code int, msg ...string) {
-	message := "操作失败"
-	if len(msg) == 1 {
+func ErrorWithCode(ctx *gin.Context, code int, err error, msg ...string) {
+	message := DoError
+	if len(msg) > 0 {
 		message = msg[0]
 	}
+	// 记录错误日志
+	logs.Error(fmt.Sprintf("%v:%v", message, err.Error()))
 	Custom(ctx, code, message, nil)
 }
 

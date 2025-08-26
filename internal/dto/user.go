@@ -17,6 +17,13 @@ type UserEditDTO struct {
 	Email    string `json:"email"`
 }
 
+type UserLoginDTO struct {
+	Username string `json:"username" binding:"required,min=3,max=20"`
+	Password string `json:"password" binding:"required"`
+	Code     string `json:"code" binding:"required"`
+	CodeId   string `json:"code_id"`
+}
+
 type UserListDTO struct {
 	Pagination
 	Username string `form:"username"`

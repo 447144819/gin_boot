@@ -40,7 +40,9 @@ func (j *JWTHandler) SetJWTToken(userId int64, username string) (string, error) 
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secretKey)
+
+	tokenStr, err := token.SignedString(secretKey)
+	return "Bearer " + tokenStr, err
 }
 
 // ParseToken 解析并验证 JWT Token

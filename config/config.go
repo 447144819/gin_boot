@@ -1,5 +1,10 @@
 package config
 
+import (
+	"github.com/spf13/viper"
+	"log"
+)
+
 // Config 全局配置结构
 type Config struct {
 	Server   ServerConfig   `mapstructure:"server"`
@@ -7,42 +12,26 @@ type Config struct {
 	Redis    RedisConfig    `mapstructure:"redis"`
 	Log      LogConfig      `mapstructure:"log"`
 	File     FileConfig     `mapstructure:"file"` // 文件配置
+	Captcha  CaptchaConfig  `mapstructure:"captcha"`
 }
 
-// 全局便捷函数
-var globalManager = GetConfigManager()
+func LoadConfig() *Config {
+	viper.SetConfigName("config")    // 配置文件名称 (不带扩展名)
+	viper.SetConfigType("yaml")      // 或者 json
+	viper.AddConfigPath("./config/") // 当前目录
 
-// Init 全局初始化函数
-func Init(configPath string) error {
-	return globalManager.InitConfig(configPath)
-}
+	// 你可以根据需要添加更多路径，如 viper.AddConfigPath("./config")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("无法读取配置文件: %v", err)
+		return nil
+	}
 
-// Get 获取完整配置
-func Get() Config {
-	return globalManager.GetConfig()
-}
+	var cfg Config
+	if err := viper.Unmarshal(&cfg); err != nil {
+		log.Fatalf("配置文件解析失败: %v", err)
+		return nil
+	}
 
-// GetServer 获取服务器配置
-func GetServer() ServerConfig {
-	return globalManager.GetServerConfig()
-}
-
-// GetDatabase 获取数据库配置
-func GetDatabase() DatabaseConfig {
-	return globalManager.GetDatabaseConfig()
-}
-
-// GetRedis 获取Redis配置
-func GetRedis() RedisConfig {
-	return globalManager.GetRedisConfig()
-}
-
-// GetLog 获取日志配置
-func GetLog() LogConfig {
-	return globalManager.GetLogConfig()
-}
-
-// GetLog 获取日志配置
-func GetFile() FileConfig {
-	return globalManager.GetFileConfig()
+	log.Printf("🔧 加载配置: %+v", cfg)
+	return &cfg
 }

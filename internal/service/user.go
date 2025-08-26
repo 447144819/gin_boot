@@ -8,20 +8,38 @@ import (
 	"gin_boot/internal/model"
 	"gin_boot/internal/utils/hash"
 	"gin_boot/internal/vo"
+	"gin_boot/pkg/jwts"
 )
 
-type UserService struct {
-	dao *dao.UserDao
+// UserService 定义服务行为（接口）
+type UserService interface {
+	ModelToVo(user model.User) vo.UserInfoVO
+	Create(ctx context.Context, req dto.UserCreateDTO) error
+	Delete(ctx context.Context, id int64) error
+	Edit(ctx context.Context, req dto.UserEditDTO) error
+	Detail(ctx context.Context, id int64) (vo.UserInfoVO, error)
+	List(ctx context.Context, req *dto.UserListDTO) ([]vo.UserInfoVO, int64, error)
+	Login(ctx context.Context, req dto.UserLoginDTO) (string, error)
 }
 
-func NewUserService(dao *dao.UserDao) *UserService {
-	return &UserService{
+// userServiceImpl 是接口的实际实现（包内实现，不对外暴露）
+type userServiceImpl struct {
+	dao dao.UserDao
+	//redisStore *captcha.RedisStore
+}
+
+// NewUserService 是构造函数，返回接口类型
+func NewUserService(dao dao.UserDao) UserService {
+	return &userServiceImpl{
 		dao: dao,
+		//redisStore: redisStore,
 	}
 }
 
-func (s UserService) ModelToVo(user model.User) vo.UserInfoVO {
+// modelToVo model 转vo
+func (s *userServiceImpl) ModelToVo(user model.User) vo.UserInfoVO {
 	return vo.UserInfoVO{
+		Id:       user.Id,
 		Username: user.Username,
 		Nickname: user.Nickname,
 		Phone:    user.Phone,
@@ -30,7 +48,7 @@ func (s UserService) ModelToVo(user model.User) vo.UserInfoVO {
 		Ctime:    user.Ctime,
 	}
 }
-func (s UserService) Create(ctx context.Context, req dto.UserCreateDTO) error {
+func (s *userServiceImpl) Create(ctx context.Context, req dto.UserCreateDTO) error {
 	// 判断用户是否存在
 	user, err := s.dao.FindByUsername(ctx, req.Username)
 	if user.Id > 0 {
@@ -45,7 +63,7 @@ func (s UserService) Create(ctx context.Context, req dto.UserCreateDTO) error {
 	return err
 }
 
-func (s *UserService) Delete(ctx context.Context, id int64) error {
+func (s *userServiceImpl) Delete(ctx context.Context, id int64) error {
 	user, err := s.dao.FindById(ctx, id)
 	if user.Id < 1 {
 		return errors.New("用户不存在")
@@ -57,7 +75,7 @@ func (s *UserService) Delete(ctx context.Context, id int64) error {
 	return s.dao.Delete(ctx, id)
 }
 
-func (s UserService) Edit(ctx context.Context, req dto.UserEditDTO) error {
+func (s *userServiceImpl) Edit(ctx context.Context, req dto.UserEditDTO) error {
 	user, err := s.dao.FindById(ctx, req.Id)
 	if user.Id < 1 {
 		return errors.New("用户不存在")
@@ -72,7 +90,7 @@ func (s UserService) Edit(ctx context.Context, req dto.UserEditDTO) error {
 	return s.dao.Update(ctx, user)
 }
 
-func (s *UserService) Detial(ctx context.Context, id int64) (vo.UserInfoVO, error) {
+func (s *userServiceImpl) Detail(ctx context.Context, id int64) (vo.UserInfoVO, error) {
 	user, err := s.dao.FindById(ctx, id)
 	if user.Id < 1 {
 		return vo.UserInfoVO{}, errors.New("用户不存在")
@@ -83,18 +101,42 @@ func (s *UserService) Detial(ctx context.Context, id int64) (vo.UserInfoVO, erro
 	return s.ModelToVo(user), nil
 }
 
-func (s *UserService) List(ctx context.Context, req *dto.UserListDTO) (vo.UserListVo, error) {
-	var res vo.UserListVo
-	users, count, err := s.dao.List(ctx, req)
+func (s *userServiceImpl) List(ctx context.Context, req *dto.UserListDTO) ([]vo.UserInfoVO, int64, error) {
+	var userInfo []vo.UserInfoVO
+	users, total, err := s.dao.List(ctx, req)
 	if err != nil {
-		return res, err
+		return userInfo, total, err
 	}
 
-	var userInfo []vo.UserInfoVO
 	for _, user := range users {
 		userInfo = append(userInfo, s.ModelToVo(user))
 	}
-	res.Total = count
-	res.Data = userInfo
-	return res, nil
+	return userInfo, total, nil
+}
+
+func (s *userServiceImpl) Login(ctx context.Context, req dto.UserLoginDTO) (string, error) {
+	//// 验证码校验
+	//isValid := s.redisStore.Verify(req.CodeId, req.Code, true)
+	//if !isValid {
+	//	//return "",errors.New("验证码错误或已过期")
+	//}
+
+	// 查询用户
+	user, err := s.dao.FindByUsername(ctx, req.Username)
+	if user.Id < 1 {
+		return "", errors.New("用户不存在")
+	}
+	if err != nil {
+		return "", err
+	}
+
+	// 对比密码
+	isValid := hash.BcryptCheck(req.Password, user.Password)
+	if !isValid {
+		return "", errors.New("密码错误")
+	}
+
+	// 生成token
+	token, err := jwts.NewJWTHandler().SetJWTToken(int64(user.Id), user.Username)
+	return token, err
 }

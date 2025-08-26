@@ -1,23 +1,25 @@
 server:
-  name: "gin-viper-app"
+  name: "gin-app"
   host: "127.0.0.1"
   port: 8088
-  mode: "debug"  # debug, release, test
+  mode: "debug"  # debug、release、test
+  version: "1.0.0"
+  env: "dev"  # dev、test、prod
 
 database:
   driver: "mysql"
-  host: "localhost"
+  host: "127.0.0.1"
   port: 3306
   username: "root"
-  password: "root"
-  dbname: "admin-api"
+  password: "123456"
+  dbname: "mydb"
   charset: "utf8mb4"
-  prefix: "lzw_"
+  prefix: "ev_"
 
 redis:
-  host: "localhost"
+  host: "127.0.0.1"
   port: 6379
-  password: ""
+  password: "123456"
   db: 0
 
 # 日志配置
@@ -39,4 +41,14 @@ file:
   local_time: true         # 是否使用本地时间
   daily_rotate: false       # 日志是否保存一个问题
   time_format: "2006-01-02" # 时间格式
+
+# 验证码
+captcha:
+  height: 60
+  width: 200
+  noiseCount: 0
+  showLineOptions: 2
+  length: 4
+  source: "1234567890qwertyuioplkjhgfdsazxcvbnm"
+
 

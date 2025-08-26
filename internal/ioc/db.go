@@ -1,4 +1,4 @@
-package initializa
+package ioc
 
 import (
 	"fmt"
@@ -12,15 +12,14 @@ import (
 	"time"
 )
 
-func InitDB() *gorm.DB {
-	dbConfig := config.GetDatabase()
+func InitDB(cfg *config.Config) *gorm.DB {
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=%v&parseTime=True&loc=Local",
-		dbConfig.Username,
-		dbConfig.Password,
-		dbConfig.Host,
-		dbConfig.Port,
-		dbConfig.Dbname,
-		dbConfig.Charset,
+		cfg.Database.Username,
+		cfg.Database.Password,
+		cfg.Database.Host,
+		cfg.Database.Port,
+		cfg.Database.Dbname,
+		cfg.Database.Charset,
 	)
 
 	newLogger := logger.New(
@@ -37,7 +36,7 @@ func InitDB() *gorm.DB {
 	// Globally mode 全局模式
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix: config.GetDatabase().Prefix, // 数据库的表前缀
+			TablePrefix: cfg.Database.Prefix, // 数据库的表前缀
 		},
 		Logger:                                   newLogger,
 		DisableForeignKeyConstraintWhenMigrating: true, // 在 AutoMigrate 或 CreateTable 时，GORM 会自动创建外键约束，若要禁用该特性，可将其设置为 true
