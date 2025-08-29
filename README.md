@@ -87,7 +87,7 @@ func (h *UserController) RegisterRoutes(server *common.RouteContext) {
 
 5. 生成wire
 
-在更目录执行命令
+在更目录执行命令，会自动生成路由和wire文件
 ```go
 // 安装 wire
 go install github.com/google/wire/cmd/wire@latest
