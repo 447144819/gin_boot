@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package main
+package wire
 
 import (
 	"gin_boot/config"
@@ -21,16 +21,16 @@ import (
 
 func InitWebServer() (*ioc.Server, error) {
 	configConfig := config.LoadConfig()
-	db := ioc.InitDB(configConfig)
-	userDao := dao.NewUserDao(db)
-	userService := service.NewUserService(userDao)
-	userController := controller.NewUserController(userService)
 	client := ioc.InitRedis(configConfig)
 	redisService := redis.NewRedisService(client)
 	redisStore := captcha.NewRedisStore(redisService)
 	captchaService := service.NewCaptchaService(redisStore, configConfig)
 	controllerCaptcha := controller.NewCaptchaController(redisStore, captchaService)
-	v := router.NewAllHandlers(userController, controllerCaptcha)
+	db := ioc.InitDB(configConfig)
+	userDao := dao.NewUserDao(db)
+	userService := service.NewUserService(userDao)
+	userController := controller.NewUserController(userService)
+	v := router.NewAllHandlers(controllerCaptcha, userController)
 	logger, err := ioc.InitLogger(configConfig)
 	if err != nil {
 		return nil, err

@@ -1,14 +1,11 @@
 //go:build wireinject
 
-package main
+package wire
 
 import (
 	"gin_boot/config"
-	"gin_boot/internal/controller"
-	"gin_boot/internal/dao"
 	"gin_boot/internal/ioc"
 	"gin_boot/internal/router"
-	"gin_boot/internal/service"
 	"gin_boot/internal/utils/captcha"
 	"gin_boot/internal/utils/redis"
 	"github.com/google/wire"
@@ -25,13 +22,13 @@ func InitWebServer() (*ioc.Server, error) {
 		captcha.NewRedisStore,
 
 		// 引入 DAO 层的 ProviderSet
-		dao.DaoSet,
+		ioc.DaoSet,
 
 		// 引入 Service 层的 ProviderSet
-		service.ServiceSet,
+		ioc.ServiceSet,
 
 		// 引入 Controller 层的 ProviderSet
-		controller.ControllerSet,
+		ioc.ControllerSet,
 
 		// 初始化
 		ioc.InitWebServer,

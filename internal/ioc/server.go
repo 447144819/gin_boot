@@ -3,9 +3,8 @@ package ioc
 import (
 	"fmt"
 	"gin_boot/config"
-	"gin_boot/internal/controller/common"
 	"gin_boot/internal/middleware"
-	"gin_boot/internal/router"
+	"gin_boot/internal/router/routers"
 	"gin_boot/internal/utils/logs"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -18,7 +17,7 @@ type Server struct {
 	//handlers []common.RouteRegistrar // 只依赖一个 Handler 集合
 }
 
-func InitWebServer(cfg *config.Config, handlers []common.RouteRegistrar, logger *zap.Logger) (*Server, error) {
+func InitWebServer(cfg *config.Config, handlers []routers.RouteRegistrar, logger *zap.Logger) (*Server, error) {
 	s := &Server{
 		cfg: cfg,
 		log: logger,
@@ -34,7 +33,7 @@ func InitWebServer(cfg *config.Config, handlers []common.RouteRegistrar, logger 
 	s.InitGinMiddlewares(server)
 
 	// 注册路由
-	router.RegisterRoutes(server, handlers)
+	routers.RegisterRoutes(server, handlers)
 
 	//设置Gin模式
 	if mode := cfg.Server.Mode; mode == "release" {

@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"gin_boot/internal/controller/common"
+	"gin_boot/internal/router/routers"
 	"gin_boot/internal/service"
 	"gin_boot/internal/utils/captcha"
 	"gin_boot/pkg/response"
@@ -14,8 +14,9 @@ type Captcha struct {
 }
 
 // 注册路由
-func (c *Captcha) RegisterRoutes(server *common.RouteContext) {
-	server.APIV1.GET("/captcha", c.GetCaptcha)
+func (c *Captcha) RegisterRoutes(server *gin.Engine) {
+	apiv1 := server.Group(routers.RouterBase.APIV1)
+	apiv1.GET("/captcha", c.GetCaptcha)
 }
 
 func NewCaptchaController(redisSvc *captcha.RedisStore, svc *service.CaptchaService) *Captcha {

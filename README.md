@@ -38,21 +38,6 @@ func NewUserDao(db *gorm.DB) UserDao {
 		db: db,
 	}
 }
-
-```
-#### 设置wire
-/gin_boot/internal/dao/wire_set.go
-```go
-package dao
-
-import "github.com/google/wire"
-
-// DaoSet 是所有 DAO 构造函数的集合（ProviderSet）
-var DaoSet = wire.NewSet(
-	NewUserDao,
-
-	// 未来新增 DAO，只需在这里追加即可
-)
 ```
 3. 创建 service
    /gin_boot/internal/service/router.go
@@ -76,21 +61,6 @@ func NewUserService(dao dao.UserDao) UserService {
 }
 ```
 
-#### 设置wire
-/gin_boot/internal/service/wire_set.go
-```go
-package service
-
-import "github.com/google/wire"
-
-// ServiceSet 是所有 Service 构造函数的集合
-var ServiceSet = wire.NewSet(
-	NewUserService,
-
-	// 未来新增 Service，只需在这里追加即可
-)
-
-```
 4. 创建 controller
    /gin_boot/internal/controller/router.go
 ```go
@@ -114,34 +84,18 @@ func (h *UserController) RegisterRoutes(server *common.RouteContext) {
 }
 
 ```
-#### 设置wire
-/gin_boot/internal/controller/wire_set.go
+
+5. 生成wire
+
+在更目录执行命令
 ```go
-package controller
+// 安装 wire
+go install github.com/google/wire/cmd/wire@latest
 
-import "github.com/google/wire"
 
-// ControllerSet 是所有 Controller 构造函数的集合
-var ControllerSet = wire.NewSet(
-	NewUserController,
+// 执行命令，生成
+go run .\cmd\runwire.go
 
-	// 未来新增 Controller，只需在这里追加即可
-)
-
-```
-5. 设置路由
-   /gin_boot/internal/router/router.go
-```go
-
-func NewAllHandlers(
-	userHandler *controller.UserController,
-) []common.RouteRegistrar {
-	return []common.RouteRegistrar{
-		userHandler,
-		
-		// 新增的 Handler 直接加入这个切片
-	}
-}
 ```
 
 
@@ -161,12 +115,4 @@ response.Error(ctx)
 response.Error(ctx, "用户创建失败")
 response.ErrorWithCode(ctx, 201)
 response.ErrorWithCode(ctx, 203, "用户创建失败")
-```
-
-### // 注册路由
-在控制器中实现RegisterRoutes方法
-```angular2html
-func (c *Captcha) RegisterRoutes(server *common.RouteContext) {
-server.APIV1.GET("/captcha", c.GetCaptcha)
-}
 ```

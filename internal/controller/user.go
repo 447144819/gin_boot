@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"gin_boot/internal/controller/common"
 	"gin_boot/internal/dto"
+	"gin_boot/internal/router/routers"
 	"gin_boot/internal/service"
 	"gin_boot/internal/utils/validator"
 	"gin_boot/pkg/response"
@@ -20,8 +20,9 @@ func NewUserController(svc service.UserService) *UserController {
 	}
 }
 
-func (h *UserController) RegisterRoutes(server *common.RouteContext) {
-	user := server.APIV1.Group("/user")
+func (h *UserController) RegisterRoutes(server *gin.Engine) {
+	apiv1 := server.Group(routers.RouterBase.APIV1)
+	user := apiv1.Group("/user")
 	user.POST("/add", h.Create)
 	user.PUT("/edit", h.Edit)
 	user.DELETE("/delete/:id", h.Delete)
