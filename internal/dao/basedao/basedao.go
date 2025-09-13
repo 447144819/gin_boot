@@ -7,12 +7,12 @@ import (
 	"log/slog"
 )
 
-// BaseDao 是一个泛型 DAO，T 是任意模型类型，比如 model.User / model.Dictionary
+// BaseDao 是一个泛型 DAO，M=模型，T=模型主键类型
 type BaseDao[M, T any] struct {
 	DB *gorm.DB
 }
 
-// NewBaseDao 创建一个泛型 DAO 实例，并自动迁移数据库表
+// NewBaseDao 创建一个泛型 DAO 实例
 func NewBaseDao[M, T any](db *gorm.DB) *BaseDao[M, T] {
 	if db == nil {
 		panic("BaseDao: db 数据库为空")
