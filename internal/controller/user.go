@@ -89,7 +89,7 @@ func (u *UserController) Detail(ctx *gin.Context) {
 	}
 	user, err := u.svc.Detail(ctx.Request.Context(), id)
 	if err != nil {
-		response.Error(ctx, err, response.ParamsError)
+		response.Error(ctx, err, response.NoExists)
 		return
 	}
 	response.SuccessData(ctx, user)

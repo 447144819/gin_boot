@@ -10,7 +10,7 @@ import (
 // 白名单
 var paths = []string{
 	"/api/v1/captcha",
-	"/api/v1/users/login",
+	"/api/v1/user/login",
 }
 
 type JWTMiddlewareBuilder struct{}

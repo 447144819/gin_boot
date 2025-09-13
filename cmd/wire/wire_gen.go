@@ -28,7 +28,7 @@ func InitWebServer() (*ioc.Server, error) {
 	controllerCaptcha := controller.NewCaptchaController(redisStore, captchaService)
 	db := ioc.InitDB(configConfig)
 	userDao := dao.NewUserDao(db)
-	userService := service.NewUserService(userDao)
+	userService := service.NewUserService(userDao, redisStore)
 	userController := controller.NewUserController(userService)
 	v := router.NewAllHandlers(controllerCaptcha, userController)
 	logger, err := ioc.InitLogger(configConfig)

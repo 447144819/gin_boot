@@ -6,6 +6,7 @@ import (
 	"gin_boot/internal/dao"
 	"gin_boot/internal/dto"
 	"gin_boot/internal/model"
+	"gin_boot/internal/utils/captcha"
 	"gin_boot/internal/utils/hash"
 	"gin_boot/internal/vo"
 	"gin_boot/pkg/jwts"
@@ -24,15 +25,15 @@ type UserService interface {
 
 // userServiceImpl 是接口的实际实现（包内实现，不对外暴露）
 type userServiceImpl struct {
-	dao *dao.UserDao
-	//redisStore *captcha.RedisStore
+	dao        *dao.UserDao
+	redisStore *captcha.RedisStore
 }
 
 // NewUserService 是构造函数，返回接口类型
-func NewUserService(dao *dao.UserDao) UserService {
+func NewUserService(dao *dao.UserDao, redisStore *captcha.RedisStore) UserService {
 	return &userServiceImpl{
-		dao: dao,
-		//redisStore: redisStore,
+		dao:        dao,
+		redisStore: redisStore,
 	}
 }
 
@@ -48,18 +49,20 @@ func (s *userServiceImpl) ModelToVo(user model.User) vo.UserInfoVO {
 		Ctime:    user.Ctime,
 	}
 }
+
 func (s *userServiceImpl) Create(ctx context.Context, req dto.UserCreateDTO) error {
-	// 判断用户是否存在
+	// 判断是否存在
 	user, err := s.dao.FindByUsername(ctx, req.Username)
-	if user.Id > 0 {
-		return errors.New("用户已存在")
-	}
 	if err != nil {
 		return err
 	}
+	if user.Id > 0 {
+		return errors.New("用户已存在")
+	}
+
 	// 设置密码
 	req.Password = hash.BcryptMake(req.Password)
-	err = s.dao.Create(ctx, &model.User{
+	return s.dao.Create(ctx, &model.User{
 		Username: req.Username,
 		Password: req.Password,
 		RoleId:   req.RoleId,
@@ -67,7 +70,6 @@ func (s *userServiceImpl) Create(ctx context.Context, req dto.UserCreateDTO) err
 		Phone:    req.Phone,
 		Email:    req.Email,
 	})
-	return err
 }
 
 func (s *userServiceImpl) Delete(ctx context.Context, id uint64) error {
@@ -111,10 +113,14 @@ func (s *userServiceImpl) Detail(ctx context.Context, id uint64) (vo.UserInfoVO,
 func (s *userServiceImpl) List(ctx context.Context, req *dto.UserListDTO) ([]vo.UserInfoVO, int64, error) {
 	var userInfo []vo.UserInfoVO
 	where := map[string]interface{}{
-		"phone":           req.Phone,
-		"username like ?": "%" + req.Username + "%",
-		"email like ?":    "%" + req.Email + "%",
-		"nickname like ?": "%" + req.Nickname + "%",
+		"phone": req.Phone,
+		"email": req.Email,
+	}
+	if req.Username != "" {
+		where["username like ?"] = "%" + req.Username + "%"
+	}
+	if req.Nickname != "" {
+		where["nickname like ?"] = "%" + req.Nickname + "%"
 	}
 	users, total, err := s.dao.PageQuery(ctx, req.Page, req.Limit, where, "id desc", []string{})
 	if err != nil {
@@ -128,11 +134,11 @@ func (s *userServiceImpl) List(ctx context.Context, req *dto.UserListDTO) ([]vo.
 }
 
 func (s *userServiceImpl) Login(ctx context.Context, req dto.UserLoginDTO) (string, error) {
-	//// 验证码校验
-	//isValid := s.redisStore.Verify(req.CodeId, req.Code, true)
-	//if !isValid {
-	//	//return "",errors.New("验证码错误或已过期")
-	//}
+	// 验证码校验
+	isValid := s.redisStore.Verify(req.CodeId, req.Code, true)
+	if !isValid {
+		//return "",errors.New("验证码错误或已过期")
+	}
 
 	// 查询用户
 	user, err := s.dao.FindByUsername(ctx, req.Username)
@@ -144,12 +150,11 @@ func (s *userServiceImpl) Login(ctx context.Context, req dto.UserLoginDTO) (stri
 	}
 
 	// 对比密码
-	isValid := hash.BcryptCheck(req.Password, user.Password)
+	isValid = hash.BcryptCheck(req.Password, user.Password)
 	if !isValid {
 		return "", errors.New("密码错误")
 	}
 
 	// 生成token
-	token, err := jwts.NewJWTHandler().SetJWTToken(int64(user.Id), user.Username)
-	return token, err
+	return jwts.NewJWTHandler().SetJWTToken(int64(user.Id), user.Username)
 }
