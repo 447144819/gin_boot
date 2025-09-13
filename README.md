@@ -2,6 +2,9 @@
 gin框架脚手架
 基于wire管理依赖注入，配置文件管理，日志打印，响应返回封装，错误处理，中间件，jwt验证，mysql数据库操作，redis数据库操作，验证码生成，
 
+为了提高开发速度，对dao层封装了常用的curl。
+
+
 ### 使用流程
 1. 创建 model
    /gin_boot/internal/model/user.go
