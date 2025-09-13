@@ -10,7 +10,7 @@ type UserCreateDTO struct {
 }
 
 type UserEditDTO struct {
-	Id       int64  `json:"id" binding:"required"`
+	Id       uint64 `json:"id" binding:"required"`
 	RoleId   int64  `json:"role_id"`
 	Nickname string `json:"nickname"`
 	Phone    string `json:"phone"`

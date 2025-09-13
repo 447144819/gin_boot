@@ -2,12 +2,12 @@
 package ioc
 
 import (
-    "gin_boot/internal/service"
-    "github.com/google/wire"
+	"gin_boot/internal/service"
+	"github.com/google/wire"
 )
 
 // ServiceSet 是所有 Service 构造函数的集合
 var ServiceSet = wire.NewSet(
-    service.NewCaptchaService,
-    service.NewUserService,
+	service.NewCaptchaService,
+	service.NewUserService,
 )

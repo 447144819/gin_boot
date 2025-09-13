@@ -70,7 +70,7 @@ func (u *UserController) Edit(ctx *gin.Context) {
 }
 
 func (u *UserController) Delete(ctx *gin.Context) {
-	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if id < 1 {
 		response.Error(ctx, nil, "参数错误")
 	}
@@ -83,7 +83,7 @@ func (u *UserController) Delete(ctx *gin.Context) {
 }
 
 func (u *UserController) Detail(ctx *gin.Context) {
-	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if id < 1 {
 		response.Error(ctx, nil, response.ParamsError)
 	}

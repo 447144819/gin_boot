@@ -15,21 +15,21 @@ import (
 type UserService interface {
 	ModelToVo(user model.User) vo.UserInfoVO
 	Create(ctx context.Context, req dto.UserCreateDTO) error
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id uint64) error
 	Edit(ctx context.Context, req dto.UserEditDTO) error
-	Detail(ctx context.Context, id int64) (vo.UserInfoVO, error)
+	Detail(ctx context.Context, id uint64) (vo.UserInfoVO, error)
 	List(ctx context.Context, req *dto.UserListDTO) ([]vo.UserInfoVO, int64, error)
 	Login(ctx context.Context, req dto.UserLoginDTO) (string, error)
 }
 
 // userServiceImpl 是接口的实际实现（包内实现，不对外暴露）
 type userServiceImpl struct {
-	dao dao.UserDao
+	dao *dao.UserDao
 	//redisStore *captcha.RedisStore
 }
 
 // NewUserService 是构造函数，返回接口类型
-func NewUserService(dao dao.UserDao) UserService {
+func NewUserService(dao *dao.UserDao) UserService {
 	return &userServiceImpl{
 		dao: dao,
 		//redisStore: redisStore,
@@ -59,11 +59,18 @@ func (s *userServiceImpl) Create(ctx context.Context, req dto.UserCreateDTO) err
 	}
 	// 设置密码
 	req.Password = hash.BcryptMake(req.Password)
-	err = s.dao.Create(ctx, req)
+	err = s.dao.Create(ctx, &model.User{
+		Username: req.Username,
+		Password: req.Password,
+		RoleId:   req.RoleId,
+		Nickname: req.Nickname,
+		Phone:    req.Phone,
+		Email:    req.Email,
+	})
 	return err
 }
 
-func (s *userServiceImpl) Delete(ctx context.Context, id int64) error {
+func (s *userServiceImpl) Delete(ctx context.Context, id uint64) error {
 	user, err := s.dao.FindById(ctx, id)
 	if user.Id < 1 {
 		return errors.New("用户不存在")
@@ -87,10 +94,10 @@ func (s *userServiceImpl) Edit(ctx context.Context, req dto.UserEditDTO) error {
 	user.Phone = req.Phone
 	user.Nickname = req.Nickname
 	user.RoleId = req.RoleId
-	return s.dao.Update(ctx, user)
+	return s.dao.Update(ctx, &user)
 }
 
-func (s *userServiceImpl) Detail(ctx context.Context, id int64) (vo.UserInfoVO, error) {
+func (s *userServiceImpl) Detail(ctx context.Context, id uint64) (vo.UserInfoVO, error) {
 	user, err := s.dao.FindById(ctx, id)
 	if user.Id < 1 {
 		return vo.UserInfoVO{}, errors.New("用户不存在")
@@ -103,7 +110,13 @@ func (s *userServiceImpl) Detail(ctx context.Context, id int64) (vo.UserInfoVO, 
 
 func (s *userServiceImpl) List(ctx context.Context, req *dto.UserListDTO) ([]vo.UserInfoVO, int64, error) {
 	var userInfo []vo.UserInfoVO
-	users, total, err := s.dao.List(ctx, req)
+	where := map[string]interface{}{
+		"phone":           req.Phone,
+		"username like ?": "%" + req.Username + "%",
+		"email like ?":    "%" + req.Email + "%",
+		"nickname like ?": "%" + req.Nickname + "%",
+	}
+	users, total, err := s.dao.PageQuery(ctx, req.Page, req.Limit, where, "id desc", []string{})
 	if err != nil {
 		return userInfo, total, err
 	}
