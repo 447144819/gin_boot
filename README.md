@@ -20,23 +20,18 @@ type User struct {
 2. 创建 dao
    /gin_boot/internal/dao/user.go
 ```go
-// UserDao 定义服务行为（接口）
-type UserDao interface {
-	Create(ctx context.Context, req dto.UserCreateDTO) error
-}
-
-// userDaoImpl 是接口的实际实现（包内实现，不对外暴露）
-type userDaoImpl struct {
-	db *gorm.DB
+// UserDao 
+type UserDao struct {
+    *basedao.BaseDao[model.User, uint64]
 }
 
 // NewUserDao 是构造函数，返回接口类型
-func NewUserDao(db *gorm.DB) UserDao {
-	// 自动创建表
-	db.AutoMigrate(&model.User{})
-	return &userDaoImpl{
-		db: db,
-	}
+func NewUserDao(db *gorm.DB) *UserDao {
+   // 自动创建表
+   db.AutoMigrate(&model.User{})
+   return &UserDao{
+      basedao.NewBaseDao[model.User, uint64](db),
+   }
 }
 ```
 3. 创建 service
@@ -50,11 +45,11 @@ type UserService interface {
 
 // userServiceImpl 是接口的实际实现（包内实现，不对外暴露）
 type userServiceImpl struct {
-	dao dao.UserDao
+	dao *dao.UserDao
 }
 
 // NewUserService 是构造函数，返回接口类型
-func NewUserService(dao dao.UserDao) UserService {
+func NewUserService(dao *dao.UserDao) UserService {
 	return &userServiceImpl{
 		dao: dao,
 	}
