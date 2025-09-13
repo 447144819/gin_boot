@@ -2,11 +2,11 @@
 package ioc
 
 import (
-	"gin_boot/internal/dao"
-	"github.com/google/wire"
+    "gin_boot/internal/dao"
+    "github.com/google/wire"
 )
 
 // DaoSet 是所有 DAO 构造函数的集合（ProviderSet）
 var DaoSet = wire.NewSet(
-	dao.NewUserDao,
+    dao.NewUserDao,
 )

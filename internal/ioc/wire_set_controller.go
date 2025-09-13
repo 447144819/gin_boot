@@ -2,12 +2,12 @@
 package ioc
 
 import (
-	"gin_boot/internal/controller"
-	"github.com/google/wire"
+    "gin_boot/internal/controller"
+    "github.com/google/wire"
 )
 
 // ControllerSet 是所有 Controller 构造函数的集合
 var ControllerSet = wire.NewSet(
-	controller.NewUserController,
-	controller.NewCaptchaController,
+    controller.NewCaptchaController,
+    controller.NewUserController,
 )

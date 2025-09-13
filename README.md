@@ -93,6 +93,12 @@ go run .\cmd\runwire.go
 
 ```
 
+### 自动创建模块
+```angular2html
+go run .\cmd\auto\main.go test1
+go run cmd/auto/main.go test1
+```
+
 
 ### 日志打印
 ```

@@ -17,6 +17,7 @@ const (
 	EditError     = "修改失败"
 	DeleteSuccess = "删除成功"
 	DeleteError   = "删除失败"
+	NoExists      = "数据不存在"
 )
 
 // 统一返回结构
@@ -29,7 +30,7 @@ type Response struct {
 // 分页数据
 type PageResult struct {
 	List  interface{} `json:"list"`
-	Total int64       `json:"total"`
+	Total int64       `json:"count"`
 	Page  int         `json:"page"`
 	Limit int         `json:"limit"`
 }
